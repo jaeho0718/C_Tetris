@@ -3,10 +3,7 @@
 #include <conio.h>
 #include <time.h> 
 
-#define SPACE 32
-#define LEFT 75
-#define RIGHT 77
-#define DOWN 80
+#define SPACE 32,LEFT 75,RIGHT 77,DOWN 80,NUMBER1 49,NUMBER2 50,NUMBER3 51,NUMBER4 52,NUMBER5 53,NUMBER6 55,NUMBER7 55
 
 #define TRUE 1
 #define FALSE 0
@@ -234,6 +231,7 @@ void RemoveLine();
 void DrawMap();
 void DrawBlock();
 void InputKey();
+void SetBlock(int key)
 
 int main() {
 	Init();
@@ -302,9 +300,13 @@ void BlockToGround() {
 				}
 			}
 			x = 8;
-			y = 0;
-			if enableUserAdd{
+			y = 0; //초기로 돌아감
+			if (enableUserAdd){
 				//2줄 없어졌을 때 사용자 지정 블럭선택 활성화
+				//user에게 Input을 받고 블럭설정 후 startDropT를 초기화 함
+				startDropT = clock();//사용자가 키 누른 후 블럭이 내려오도록 시간 초기화
+				InputKey();
+				enableUserAdd = FALSE;
 			}else{
 				CreateRandomForm();
 			}
@@ -312,6 +314,7 @@ void BlockToGround() {
 	}
 }
 void RemoveLine() {
+	int checkDeleteLine = 0; 
 	for (int i = 15; i >= 0; i--) { // 벽라인 제외한 값
 		//row 확인용 for loop
 		int cnt = 0; //줄에 벽돌이 총 몇개 있는지 확인하기 위한 변수
@@ -322,6 +325,7 @@ void RemoveLine() {
 			}
 		}
 		if (cnt >= 10) { // 벽돌이 다 차있다면
+			checkDeleteLine += 1;
 			for (int j = 0; i - j >= 0; j++) {
 				for (int x = 1; x < 11; x++) {
 					if (i - j - 1 >= 0)
@@ -332,7 +336,10 @@ void RemoveLine() {
 			}
 		}
 	}
-    //1줄이되면 블럭을 제거함
+	if (checkDeleteLine >= 2){
+		//한번에 두줄이 삭제되는지 확인
+		enableUserAdd = TRUE;
+	}
 }
 
 void DrawMap() {
@@ -350,6 +357,7 @@ void DrawMap() {
 		}
 	}//맵을 그림
 }
+
 void DrawBlock() {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -366,34 +374,67 @@ void DrawBlock() {
     [4] : 가로 모양
     */
 }
+
 void InputKey() {
 	if (_kbhit()) {
         //kbhit()는 입력을 감지하는 함수임.
         //kbhit()로 입력을 감지하면  getch함수로 입력을 받음
 		key = _getch();
-		switch (key) {
-		case SPACE: // space
-			blockRotation++;
-			if (blockRotation >= 4) blockRotation = 0;
-			startGroundT = clock();
-			break;
-		case LEFT: // left
-			if (CheckCrash(x - 2, y) == false) {
-				x -= 2;
-				startGroundT = clock();
+
+		if (enableUserAdd){
+			//사용자가 블럭을 지정받을 수 있다면
+			switch (key)
+			{
+				case NUMBER1:
+					SetBlock(NUMBER1);
+					break;
+				case NUMBER2:
+					SetBlock(NUMBER2);
+					break;
+				case NUMBER3:
+					SetBlock(NUMBER3);
+					break;
+				case NUMBER4:
+					SetBlock(NUMBER4);
+					break;
+				case NUMBER5:
+					SetBlock(NUMBER5);
+					break;
+				case NUMBER6:
+					SetBlock(NUMBER6);
+					break;
 			}
-			break;
-		case RIGHT: // right
-			if (CheckCrash(x + 2, y) == false) {
-				x += 2;
-				startGroundT = clock();
+		}else{
+			switch (key) {
+				case SPACE: // space
+					blockRotation++;
+					if (blockRotation >= 4) blockRotation = 0;
+					startGroundT = clock();
+					break;
+				case LEFT: // left
+					if (CheckCrash(x - 2, y) == false) {
+						x -= 2;
+						startGroundT = clock();
+					}
+					break;
+				case RIGHT: // right
+					if (CheckCrash(x + 2, y) == false) {
+						x += 2;
+						startGroundT = clock();
+					}
+					break;
+				case DOWN: // down
+					if (CheckCrash(x, y + 1) == false)
+						y++;
+					break;
 			}
-			break;
-		case DOWN: // down
-			if (CheckCrash(x, y + 1) == false)
-				y++;
-			break;
+			system("cls");
 		}
-		system("cls");
 	}
+}
+
+void SetBlock(int key){
+	blockForm = key -1;
+	startDropT = clock();
+	//사용자가 지정한 블록으로 저장
 }
