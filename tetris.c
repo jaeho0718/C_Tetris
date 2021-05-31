@@ -3,7 +3,17 @@
 #include <conio.h>
 #include <time.h> 
 
-#define SPACE 32,LEFT 75,RIGHT 77,DOWN 80,NUMBER1 49,NUMBER2 50,NUMBER3 51,NUMBER4 52,NUMBER5 53,NUMBER6 55,NUMBER7 55
+#define SPACE 32
+#define LEFT 75
+#define RIGHT 77
+#define DOWN 80
+#define NUMBER1 49
+#define NUMBER2 50
+#define NUMBER3 51
+#define NUMBER4 52
+#define NUMBER5 53
+#define NUMBER6 55
+#define NUMBER7 55
 
 #define TRUE 1
 #define FALSE 0
@@ -231,7 +241,7 @@ void RemoveLine();
 void DrawMap();
 void DrawBlock();
 void InputKey();
-void SetBlock(int key)
+void SetBlock(int key);
 
 int main() {
 	Init();
@@ -278,6 +288,7 @@ bool CheckCrash(int x, int y) {
 	}
 	return false;
 }
+
 void DropBlock() {
 	endT = clock();
 	if ((float)(endT - startDropT) >= 800) {
@@ -288,6 +299,7 @@ void DropBlock() {
 		system("cls"); //화면을 지워줌
 	}//0.8초마다 블럭을 한칸씩 내림
 }
+
 void BlockToGround() {
 	if (CheckCrash(x, y + 1) == true) {
 		if ((float)(endT - startGroundT) > 1500) {
@@ -305,8 +317,6 @@ void BlockToGround() {
 				//2줄 없어졌을 때 사용자 지정 블럭선택 활성화
 				//user에게 Input을 받고 블럭설정 후 startDropT를 초기화 함
 				startDropT = clock();//사용자가 키 누른 후 블럭이 내려오도록 시간 초기화
-				InputKey();
-				enableUserAdd = FALSE;
 			}else{
 				CreateRandomForm();
 			}
@@ -338,6 +348,7 @@ void RemoveLine() {
 	}
 	if (checkDeleteLine >= 2){
 		//한번에 두줄이 삭제되는지 확인
+		printf("Check 2Line Delete");
 		enableUserAdd = TRUE;
 	}
 }
@@ -383,6 +394,7 @@ void InputKey() {
 
 		if (enableUserAdd){
 			//사용자가 블럭을 지정받을 수 있다면
+			startDropT = clock();
 			switch (key)
 			{
 				case NUMBER1:
@@ -404,6 +416,7 @@ void InputKey() {
 					SetBlock(NUMBER6);
 					break;
 			}
+
 		}else{
 			switch (key) {
 				case SPACE: // space
@@ -435,6 +448,6 @@ void InputKey() {
 
 void SetBlock(int key){
 	blockForm = key -1;
-	startDropT = clock();
+	enableUserAdd = FALSE;
 	//사용자가 지정한 블록으로 저장
 }
