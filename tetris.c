@@ -8,12 +8,17 @@
 #define RIGHT 77
 #define DOWN 80
 
+#define TRUE 1
+#define FALSE 0
+
 clock_t startDropT, endT, startGroundT;
 int x = 8, y = 0;
 RECT blockSize;
-int blockForm;
+int blockForm; //block 형태 지정
 int blockRotation = 0;
 int key;
+
+bool enableUserAdd = FALSE; //유저가 원하는 블럭 넣을 수 있나.
 
 int block[7][4][4][4] = {
 	{ // T모양 블럭
@@ -288,7 +293,7 @@ void DropBlock() {
 void BlockToGround() {
 	if (CheckCrash(x, y + 1) == true) {
 		if ((float)(endT - startGroundT) > 1500) {
-			// 현재 블록 저장
+			// 현재 블록 저장 1.5초 이상 움직이지 않는다면
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 4; j++) {
 					if (block[blockForm][blockRotation][i][j] == 1) {
@@ -298,14 +303,20 @@ void BlockToGround() {
 			}
 			x = 8;
 			y = 0;
-			CreateRandomForm();
+			if enableUserAdd{
+				//2줄 없어졌을 때 사용자 지정 블럭선택 활성화
+			}else{
+				CreateRandomForm();
+			}
 		}
 	}
 }
 void RemoveLine() {
 	for (int i = 15; i >= 0; i--) { // 벽라인 제외한 값
-		int cnt = 0;
+		//row 확인용 for loop
+		int cnt = 0; //줄에 벽돌이 총 몇개 있는지 확인하기 위한 변수
 		for (int j = 1; j < 11; j++) { // 
+			//i번째 줄에서 벽돌이 몇개 있는지 확인
 			if (space[i][j] == 2) {
 				cnt++;
 			}
@@ -314,7 +325,7 @@ void RemoveLine() {
 			for (int j = 0; i - j >= 0; j++) {
 				for (int x = 1; x < 11; x++) {
 					if (i - j - 1 >= 0)
-						space[i - j][x] = space[i - j - 1][x];
+						space[i - j][x] = space[i - j - 1][x]; //한줄씩 내림
 					else      // 천장이면 0저장
 						space[i - j][x] = 0;
 				}
@@ -323,6 +334,7 @@ void RemoveLine() {
 	}
     //1줄이되면 블럭을 제거함
 }
+
 void DrawMap() {
 	gotoxy(0, 0);
 	for (int i = 0; i < 16; i++) {
