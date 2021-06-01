@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <conio.h>
 #include <time.h> 
+#include <stdbool.h>
 
 #define SPACE 32
 #define LEFT 75
@@ -13,7 +14,9 @@ int x = 8, y = 0;
 RECT blockSize;
 int blockForm;
 int blockRotation = 0;
+int nextBlockRotation = 0;
 int key;
+int nextBlockForm;
 
 int block[7][4][4][4] = {
 	{ // T모양 블럭
@@ -69,7 +72,7 @@ int block[7][4][4][4] = {
 		}
 	},
 	{   // 번개 블럭 반대
-		{   
+		{
 			{0,0,0,0},
 			{1,1,0,0},
 			{0,1,1,0},
@@ -200,23 +203,23 @@ int block[7][4][4][4] = {
 	}
 };
 
-int space[15 + 1][10 + 2] = {  // 세로 15+1(아래벽)칸, 가로 10+2(양쪽 벽)칸  
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,1,1,1,1,1,1,1,1,1,1,1}
+int space[15 + 1][10 + 2 + 6] = {  // 세로 15+1(아래벽)칸, 가로 10+2(양쪽 벽)+(다음 블록)칸  
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
 void Init();
@@ -229,15 +232,18 @@ void RemoveLine();
 void DrawMap();
 void DrawBlock();
 void InputKey();
+void NextBlockPrint();
 
 int main() {
 	Init();
 	startDropT = clock();
+	blockForm = rand() % 7; //처음 블록만 직접 생성
 	CreateRandomForm();
 
 	while (true) {
 		DrawMap();
 		DrawBlock();
+		NextBlockPrint();
 		DropBlock();
 		BlockToGround();
 		RemoveLine();
@@ -260,7 +266,7 @@ void gotoxy(int x, int y) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 void CreateRandomForm() {
-	blockForm = rand() % 7; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
+	nextBlockForm = rand() % 7; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
 }
 bool CheckCrash(int x, int y) {
 	for (int i = 0; i < 4; i++) {
@@ -298,6 +304,7 @@ void BlockToGround() {
 			}
 			x = 8;
 			y = 0;
+			blockForm = nextBlockForm;
 			CreateRandomForm();
 		}
 	}
@@ -321,12 +328,12 @@ void RemoveLine() {
 			}
 		}
 	}
-    //1줄이되면 블럭을 제거함
+	//1줄이되면 블럭을 제거함
 }
 void DrawMap() {
 	gotoxy(0, 0);
 	for (int i = 0; i < 16; i++) {
-		for (int j = 0; j < 12; j++) {
+		for (int j = 0; j < 18; j++) {
 			if (space[i][j] == 1) {
 				gotoxy(j * 2, i);
 				printf("□");
@@ -347,17 +354,27 @@ void DrawBlock() {
 			}
 		}
 	}
-    /*
-    [7] : 7개의 블럭
-    [4] : 4개의 회전모양
-    [4] : 세로 모양
-    [4] : 가로 모양
-    */
 }
+void NextBlockPrint() {
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (block[nextBlockForm][nextBlockRotation][i][j] == 1) {
+				gotoxy(26 + j * 2, 1 + i);
+				printf("■");
+			}
+		}
+	}
+}
+/*
+[7] : 7개의 블럭
+[4] : 4개의 회전모양
+[4] : 세로 모양
+[4] : 가로 모양
+*/
 void InputKey() {
 	if (_kbhit()) {
-        //kbhit()는 입력을 감지하는 함수임.
-        //kbhit()로 입력을 감지하면  getch함수로 입력을 받음
+		//kbhit()는 입력을 감지하는 함수임.
+		//kbhit()로 입력을 감지하면  getch함수로 입력을 받음
 		key = _getch();
 		switch (key) {
 		case SPACE: // space
