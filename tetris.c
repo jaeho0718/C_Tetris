@@ -7,7 +7,7 @@
 #define LEFT 75
 #define RIGHT 77
 #define DOWN 80
-#define NUMBER1 49
+#define NUMBER1 49 //Number Key
 #define NUMBER2 50
 #define NUMBER3 51
 #define NUMBER4 52
@@ -238,7 +238,7 @@ void RemoveLine();
 void DrawMap();
 void DrawBlock();
 void InputKey();
-void SetBlock(int key);
+void SetBlock(int number);
 
 int main() {
 	Init();
@@ -246,12 +246,14 @@ int main() {
 	CreateRandomForm();
 
 	while (true) {
-		
 		DrawMap();
-		DrawBlock();
-		DropBlock();
-		BlockToGround();
-		RemoveLine();
+		if (!enableUserAdd){
+			//If 2Lines Delete, Until User select block , game is stop.
+			DrawBlock();
+			DropBlock();
+			BlockToGround();
+			RemoveLine();
+		}
 		InputKey();
 	}
 	return 0;
@@ -311,13 +313,7 @@ void BlockToGround() {
 			}
 			x = 8;
 			y = 0; //초기로 돌아감
-			if (enableUserAdd){
-				//2줄 없어졌을 때 사용자 지정 블럭선택 활성화
-				//user에게 Input을 받고 블럭설정 후 startDropT를 초기화 함
-				startDropT = clock();//사용자가 키 누른 후 블럭이 내려오도록 시간 초기화
-			}else{
-				CreateRandomForm();
-			}
+			CreateRandomForm();
 		}
 	}
 }
@@ -333,7 +329,7 @@ void RemoveLine() {
 			}
 		}
 		if (cnt >= 10) { // 벽돌이 다 차있다면
-			checkDeleteLine++;
+			checkDeleteLine += 1;
 			for (int j = 0; i - j >= 0; j++) {
 				for (int x = 1; x < 11; x++) {
 					if (i - j - 1 >= 0)
@@ -364,6 +360,10 @@ void DrawMap() {
 			}
 		}
 	}//맵을 그림
+	if (enableUserAdd){
+		gotoxy(0,16); //go to bottom
+		printf("SELECT BLOCK YOU WANTS.") //Show alert
+	}
 }
 
 void DrawBlock() {
@@ -391,7 +391,6 @@ void InputKey() {
 
 		if (enableUserAdd){
 			//사용자가 블럭을 지정받을 수 있다면
-			startDropT = clock();
 			switch (key)
 			{
 				case NUMBER1:
@@ -443,8 +442,9 @@ void InputKey() {
 	}
 }
 
-void SetBlock(int key){
-	blockForm = key -1;
+void SetBlock(int number){
+	blockForm = number -1;
 	enableUserAdd = false;
+	startDropT = clock();
 	//사용자가 지정한 블록으로 저장
 }
