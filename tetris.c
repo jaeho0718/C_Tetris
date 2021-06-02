@@ -15,9 +15,6 @@
 #define NUMBER6 55
 #define NUMBER7 55
 
-#define TRUE 1
-#define FALSE 0
-
 clock_t startDropT, endT, startGroundT;
 int x = 8, y = 0;
 RECT blockSize;
@@ -25,7 +22,7 @@ int blockForm; //block 형태 지정
 int blockRotation = 0;
 int key;
 
-bool enableUserAdd = FALSE; //유저가 원하는 블럭 넣을 수 있나.
+bool enableUserAdd = false; //유저가 원하는 블럭 넣을 수 있나.
 
 int block[7][4][4][4] = {
 	{ // T모양 블럭
@@ -249,6 +246,7 @@ int main() {
 	CreateRandomForm();
 
 	while (true) {
+		
 		DrawMap();
 		DrawBlock();
 		DropBlock();
@@ -335,7 +333,7 @@ void RemoveLine() {
 			}
 		}
 		if (cnt >= 10) { // 벽돌이 다 차있다면
-			checkDeleteLine += 1;
+			checkDeleteLine++;
 			for (int j = 0; i - j >= 0; j++) {
 				for (int x = 1; x < 11; x++) {
 					if (i - j - 1 >= 0)
@@ -348,8 +346,7 @@ void RemoveLine() {
 	}
 	if (checkDeleteLine >= 2){
 		//한번에 두줄이 삭제되는지 확인
-		printf("Check 2Line Delete");
-		enableUserAdd = TRUE;
+		enableUserAdd = true;
 	}
 }
 
@@ -448,6 +445,6 @@ void InputKey() {
 
 void SetBlock(int key){
 	blockForm = key -1;
-	enableUserAdd = FALSE;
+	enableUserAdd = false;
 	//사용자가 지정한 블록으로 저장
 }
