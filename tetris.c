@@ -253,7 +253,7 @@ int main() {
 	CreateRandomForm();
 
 	while (true) {
-		//ScreenClear();
+		ScreenClear();
 		DrawMap();
 		if (!enableUserAdd) {
 			//If 2Lines Delete, Until User select block , game is stop.
@@ -276,7 +276,8 @@ void Init() {
 	g_hScreen[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	SetConsoleCursorInfo(g_hScreen[0], &cursorInfo);
 	SetConsoleCursorInfo(g_hScreen[1], &cursorInfo);
-	srand(time(NULL)); //->깜빡이는 하얀새 커버가 계속 나오지 않도록 함.
+	//srand(time(NULL)); 
+	//->깜빡이는 하얀새 커버가 계속 나오지 않도록 함.
 }
 void gotoxy(int x, int y) {
 	COORD pos;
@@ -304,12 +305,12 @@ bool CheckCrash(int x, int y) {
 
 void DropBlock() {
 	endT = clock();
-	if ((float)(endT - startDropT) >= 800) {
+	if ((float)(endT - startDropT) >= 1000) {
 		if (CheckCrash(x, y + 1) == true) return;
 		y++;
 		startDropT = clock();
 		startGroundT = clock();
-		ScreenClear(); //화면을 지워줌
+		 //화면을 지워줌
 	}//0.8초마다 블럭을 한칸씩 내림
 }
 
@@ -366,7 +367,7 @@ void DrawMap() {
 	gotoxy(0, 0);
 	Color(8); //Gray
 	if (enableUserAdd) {
-		ScreenClear();
+
 		//printf("SELECT BLOCK YOU WANTS. 1~7"); 
 		//Show alert
 		showBlock();
@@ -460,7 +461,7 @@ void InputKey() {
 					y++;
 				break;
 			}
-			ScreenClear();
+	
 		}
 	}
 }
@@ -536,6 +537,7 @@ void SetBlockColor(int Form) {
 void ScreenFlipping()
 {
 	SetConsoleActiveScreenBuffer(g_hScreen[g_nScreenIndex]);
+	_sleep(50);
 	g_nScreenIndex = !g_nScreenIndex;
 }
 
