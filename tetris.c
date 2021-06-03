@@ -8,6 +8,9 @@
 #define RIGHT 77
 #define DOWN 80
 
+#define BLOCK_LENGTH 8
+#define RANDOM_BLOCK_POS 7
+
 clock_t startDropT, endT, startGroundT;
 int x = 8, y = 0;
 RECT blockSize;
@@ -15,7 +18,7 @@ int blockForm;
 int blockRotation = 0;
 int key;
 
-int block[7][4][4][4] = {
+int block[BLOCK_LENGTH][4][4][4] = {
 	{ // T모양 블럭
 		{
 			{0,0,0,0},
@@ -197,6 +200,32 @@ int block[7][4][4][4] = {
 			{0,1,1,0},
 			{0,0,0,0}
 		}
+	},
+	{
+		{
+			{0,0,0,0},
+			{1,1,1,0},
+			{1,0,1,0},
+			{1,1,1,0}
+		},
+		{
+			{0,0,0,0},
+			{1,1,1,0},
+			{1,0,1,0},
+			{1,1,1,0}
+		},
+		{
+			{0,0,0,0},
+			{1,1,1,0},
+			{1,0,1,0},
+			{1,1,1,0}
+		},
+		{
+			{0,0,0,0},
+			{1,1,1,0},
+			{1,0,1,0},
+			{1,1,1,0}
+		}
 	}
 };
 
@@ -221,7 +250,7 @@ int space[15 + 1][10 + 2] = {  // 세로 15+1(아래벽)칸, 가로 10+2(양쪽 
 
 void Init();
 void gotoxy(int x, int y);
-void CreateRandomForm();
+void CreateRandomForm(bool noRandomBlock = false);
 bool CheckCrash(int x, int y);
 void DropBlock();
 void BlockToGround();
@@ -259,8 +288,11 @@ void gotoxy(int x, int y) {
 	pos.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
-void CreateRandomForm() {
-	blockForm = rand() % 7; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
+void CreateRandomForm(bool noRandomBlock) {
+	if (noRandomBlock)
+		blockForm = rand() % BLOCK_LENGTH - 1;
+	else
+		blockForm = rand() % BLOCK_LENGTH; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
 }
 bool CheckCrash(int x, int y) {
 	for (int i = 0; i < 4; i++) {
@@ -287,7 +319,10 @@ void DropBlock() {
 }
 void BlockToGround() {
 	if (CheckCrash(x, y + 1) == true) {
-		if ((float)(endT - startGroundT) > 1500) {
+		if (blockForm == RANDOM_BLOCK_POS) {
+			CreateRandomForm(true);
+		}
+		else if ((float)(endT - startGroundT) > 1500) {
 			// 현재 블록 저장
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 4; j++) {
