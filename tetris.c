@@ -14,7 +14,6 @@
 #define NUMBER5 53
 #define NUMBER6 54
 #define NUMBER7 55
-#define COLOR(color) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),color); //색깔 입히기 위함.
 
 clock_t startDropT, endT, startGroundT;
 int x = 8, y = 0;
@@ -22,7 +21,7 @@ RECT blockSize;
 int blockForm; //block 형태 지정
 int blockRotation = 0;
 int key;
-int checkDeleteLine = 0; 
+int checkDeleteLine = 0;
 bool enableUserAdd = false; //유저가 원하는 블럭 넣을 수 있나.
 static int g_nScreenIndex;
 static HANDLE g_hScreen[2];
@@ -81,7 +80,7 @@ int block[7][4][4][4] = {
 		}
 	},
 	{   // 번개 블럭 반대
-		{   
+		{
 			{0,0,0,0},
 			{1,1,0,0},
 			{0,1,1,0},
@@ -245,16 +244,18 @@ void SetBlock(int number);
 void showBlock();
 void SetBlockColor(int Form); //set Block Color
 void ScreenFlipping();
-void print(char* string);
-
+void print(const char* string);
+void ScreenClear();
+void Color(int color);
 int main() {
 	Init();
 	startDropT = clock();
 	CreateRandomForm();
 
 	while (true) {
+		//ScreenClear();
 		DrawMap();
-		if (!enableUserAdd){
+		if (!enableUserAdd) {
 			//If 2Lines Delete, Until User select block , game is stop.
 			DrawBlock();
 			DropBlock();
@@ -262,6 +263,7 @@ int main() {
 			RemoveLine();
 		}
 		InputKey();
+		ScreenFlipping();
 	}
 	return 0;
 }
@@ -271,7 +273,7 @@ void Init() {
 	cursorInfo.bVisible = 0;
 	cursorInfo.dwSize = 1;
 	g_hScreen[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-    g_hScreen[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	g_hScreen[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	SetConsoleCursorInfo(g_hScreen[0], &cursorInfo);
 	SetConsoleCursorInfo(g_hScreen[1], &cursorInfo);
 	srand(time(NULL)); //->깜빡이는 하얀새 커버가 계속 나오지 않도록 함.
@@ -307,7 +309,7 @@ void DropBlock() {
 		y++;
 		startDropT = clock();
 		startGroundT = clock();
-		system("cls"); //화면을 지워줌
+		ScreenClear(); //화면을 지워줌
 	}//0.8초마다 블럭을 한칸씩 내림
 }
 
@@ -324,8 +326,8 @@ void BlockToGround() {
 			}
 			x = 8;
 			y = 0; //초기로 돌아감
-			if (!enableUserAdd){
-				CreateRandomForm();	
+			if (!enableUserAdd) {
+				CreateRandomForm();
 			}
 		}
 	}
@@ -352,7 +354,7 @@ void RemoveLine() {
 			}
 		}
 	}
-	if (checkDeleteLine >= 2){
+	if (checkDeleteLine >= 2) {
 		//한번에 두줄이 삭제되는지 확인
 		enableUserAdd = true;
 		checkDeleteLine = 0;
@@ -362,13 +364,14 @@ void RemoveLine() {
 
 void DrawMap() {
 	gotoxy(0, 0);
-	COLOR(8); //Gray
-	if (enableUserAdd){
-		system("cls");
+	Color(8); //Gray
+	if (enableUserAdd) {
+		ScreenClear();
 		//printf("SELECT BLOCK YOU WANTS. 1~7"); 
 		//Show alert
 		showBlock();
-	}else{
+	}
+	else {
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 12; j++) {
 				if (space[i][j] == 1) {
@@ -376,8 +379,8 @@ void DrawMap() {
 					print("□");
 				}
 				else if (space[i][j] == 2) {
-				gotoxy(j * 2, i);
-				print("■");
+					gotoxy(j * 2, i);
+					print("■");
 				}
 			}
 		}//맵을 그림
@@ -394,88 +397,89 @@ void DrawBlock() {
 			}
 		}
 	}
-    /*
-    [7] : 7개의 블럭
-    [4] : 4개의 회전모양
-    [4] : 세로 모양
-    [4] : 가로 모양
-    */
+	/*
+	[7] : 7개의 블럭
+	[4] : 4개의 회전모양
+	[4] : 세로 모양
+	[4] : 가로 모양
+	*/
 }
 
 void InputKey() {
 	if (_kbhit()) {
-        //kbhit()는 입력을 감지하는 함수임.
-        //kbhit()로 입력을 감지하면  getch함수로 입력을 받음
+		//kbhit()는 입력을 감지하는 함수임.
+		//kbhit()로 입력을 감지하면  getch함수로 입력을 받음
 		key = _getch();
 
-		if (enableUserAdd){
+		if (enableUserAdd) {
 			//사용자가 블럭을 지정받을 수 있다면
 			switch (key)
 			{
-				case NUMBER1:
-					SetBlock(NUMBER1);
-					break;
-				case NUMBER2:
-					SetBlock(NUMBER2);
-					break;
-				case NUMBER3:
-					SetBlock(NUMBER3);
-					break;
-				case NUMBER4:
-					SetBlock(NUMBER4);
-					break;
-				case NUMBER5:
-					SetBlock(NUMBER5);
-					break;
-				case NUMBER6:
-					SetBlock(NUMBER6);
-					break;
+			case NUMBER1:
+				SetBlock(NUMBER1);
+				break;
+			case NUMBER2:
+				SetBlock(NUMBER2);
+				break;
+			case NUMBER3:
+				SetBlock(NUMBER3);
+				break;
+			case NUMBER4:
+				SetBlock(NUMBER4);
+				break;
+			case NUMBER5:
+				SetBlock(NUMBER5);
+				break;
+			case NUMBER6:
+				SetBlock(NUMBER6);
+				break;
 			}
-			
-		}else{
+
+		}
+		else {
 			switch (key) {
-				case SPACE: // space
-					blockRotation++;
-					if (blockRotation >= 4) blockRotation = 0;
+			case SPACE: // space
+				blockRotation++;
+				if (blockRotation >= 4) blockRotation = 0;
+				startGroundT = clock();
+				break;
+			case LEFT: // left
+				if (CheckCrash(x - 2, y) == false) {
+					x -= 2;
 					startGroundT = clock();
-					break;
-				case LEFT: // left
-					if (CheckCrash(x - 2, y) == false) {
-						x -= 2;
-						startGroundT = clock();
-					}
-					break;
-				case RIGHT: // right
-					if (CheckCrash(x + 2, y) == false) {
-						x += 2;
-						startGroundT = clock();
-					}
-					break;
-				case DOWN: // down
-					if (CheckCrash(x, y + 1) == false)
-						y++;
-					break;
+				}
+				break;
+			case RIGHT: // right
+				if (CheckCrash(x + 2, y) == false) {
+					x += 2;
+					startGroundT = clock();
+				}
+				break;
+			case DOWN: // down
+				if (CheckCrash(x, y + 1) == false)
+					y++;
+				break;
 			}
-			system("cls");
+			ScreenClear();
 		}
 	}
 }
 
-void SetBlock(int number){
+void SetBlock(int number) {
 	blockForm = number - 49;
 	startDropT = clock();
 	enableUserAdd = false;
 	//사용자가 지정한 블록으로 저장
 }
 
-void showBlock(){
+void showBlock() {
 	//사용자가 선택할 수 있는 블럭 보여줌
 	gotoxy(0, 2);
 	int block_x = 0;
 	int number_x = 0;
 
-	for (int Block = 0; Block < 7; Block++){
-		gotoxy(block_x,2);
+	for (int Block = 0; Block < 7; Block++) {
+		gotoxy(block_x, 2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (block[Block][0][i][j] == 1) {
@@ -487,41 +491,41 @@ void showBlock(){
 		block_x += 8;
 	}
 
-	for (int number = 0; number < 7; number++){
-		gotoxy(number_x+4,6);
+	for (int number = 0; number < 7; number++) {
+		gotoxy(number_x + 4, 6);
 		//printf("%d",number+1);
 		number_x += 8;
 	}
 }
 
-void SetBlockColor(int Form){
+void SetBlockColor(int Form) {
 	switch (Form)
 	{
 	case 0:
-		COLOR(4); //Red
+		Color(4); //Red
 		break;
 	case 1:
-		COLOR(6); //Yellow
+		Color(6); //Yellow
 		/* code */
 		break;
 	case 2:
-		COLOR(14); //Light Yellow
+		Color(14); //Light Yellow
 		/* code */
 		break;
 	case 3:
-		COLOR(1); //Blue
+		Color(1); //Blue
 		/* code */
 		break;
 	case 4:
-		COLOR(2); //Green
+		Color(2); //Green
 		/* code */
 		break;
 	case 5:
-		COLOR(10); //LightGreen
+		Color(10); //LightGreen
 		/* code */
 		break;
 	case 6:
-		COLOR(3); //AQUA
+		Color(3); //AQUA
 		/* code */
 		break;
 	default:
@@ -531,12 +535,23 @@ void SetBlockColor(int Form){
 
 void ScreenFlipping()
 {
-    SetConsoleActiveScreenBuffer(g_hScreen[g_nScreenIndex]);
-    g_nScreenIndex = !g_nScreenIndex;
+	SetConsoleActiveScreenBuffer(g_hScreen[g_nScreenIndex]);
+	g_nScreenIndex = !g_nScreenIndex;
 }
 
-void print(char* string)
-{	
-    DWORD dw;
-    WriteFile(g_hScreen[g_nScreenIndex], string, strlen(string), &dw, NULL);
+void print(const char* string)
+{
+	DWORD dw;
+	WriteFile(g_hScreen[g_nScreenIndex], string, strlen(string), &dw, NULL);
+}
+
+void ScreenClear()
+{
+	COORD Coor = { 0, 0 };
+	DWORD dw;
+	FillConsoleOutputCharacter(g_hScreen[g_nScreenIndex], ' ', 80 * 25, Coor, &dw);
+}
+
+void Color(int color) {
+	SetConsoleTextAttribute(g_hScreen[g_nScreenIndex], color); //색깔 입히기 위함.
 }
