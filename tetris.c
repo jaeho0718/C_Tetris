@@ -240,6 +240,7 @@ void DrawMap();
 void DrawBlock();
 void InputKey();
 void SetBlock(int number);
+void showBlock();
 
 int main() {
 	Init();
@@ -354,6 +355,7 @@ void DrawMap() {
 	gotoxy(0, 0);
 	if (enableUserAdd){
 		printf("SELECT BLOCK YOU WANTS. 1~7"); //Show alert
+		showBlock();
 	}else{
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 12; j++) {
@@ -451,4 +453,30 @@ void SetBlock(int number){
 	startDropT = clock();
 	enableUserAdd = false;
 	//사용자가 지정한 블록으로 저장
+}
+
+void showBlock(){
+	//사용자가 선택할 수 있는 블럭 보여줌
+	gotoxy(0, 8);
+	int block_x = 0;
+	int number_x = 0;
+
+	for (int Block = 0; Block < 7; Block++){
+		gotoxy(block_x,8);
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (block[Block][0][i][j] == 1) {
+					gotoxy(block_x + j * 2, y + i);
+					printf("■");
+				}
+			}
+		}
+		block_x += 8;
+	}
+
+	for (int number = 0; number < 7; number++){
+		gotoxy(number_x+2,15);
+		printf("%d",number);
+		number_x += 4;
+	}
 }
