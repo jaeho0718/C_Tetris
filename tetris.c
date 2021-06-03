@@ -21,6 +21,7 @@ RECT blockSize;
 int blockForm; //block 형태 지정
 int blockRotation = 0;
 int key;
+int checkDeleteLine = 0; 
 
 bool enableUserAdd = false; //유저가 원하는 블럭 넣을 수 있나.
 
@@ -313,12 +314,13 @@ void BlockToGround() {
 			}
 			x = 8;
 			y = 0; //초기로 돌아감
-			CreateRandomForm();
+			if (enableUserAdd){
+				CreateRandomForm();	
+			}
 		}
 	}
 }
 void RemoveLine() {
-	int checkDeleteLine = 0; 
 	for (int i = 15; i >= 0; i--) { // 벽라인 제외한 값
 		//row 확인용 for loop
 		int cnt = 0; //줄에 벽돌이 총 몇개 있는지 확인하기 위한 변수
@@ -343,26 +345,28 @@ void RemoveLine() {
 	if (checkDeleteLine >= 2){
 		//한번에 두줄이 삭제되는지 확인
 		enableUserAdd = true;
+		checkDeleteLine = 0;
+		startDropT = clock()
 	}
 }
 
 void DrawMap() {
 	gotoxy(0, 0);
-	for (int i = 0; i < 16; i++) {
-		for (int j = 0; j < 12; j++) {
-			if (space[i][j] == 1) {
-				gotoxy(j * 2, i);
-				printf("□");
-			}
-			else if (space[i][j] == 2) {
+	if (enableUserAdd){
+		printf("SELECT BLOCK YOU WANTS. 1~7"); //Show alert
+	}else{
+		for (int i = 0; i < 16; i++) {
+			for (int j = 0; j < 12; j++) {
+				if (space[i][j] == 1) {
+					gotoxy(j * 2, i);
+					printf("□");
+				}
+				else if (space[i][j] == 2) {
 				gotoxy(j * 2, i);
 				printf("■");
+				}
 			}
-		}
-	}//맵을 그림
-	if (enableUserAdd){
-		gotoxy(0,16); //go to bottom
-		printf("SELECT BLOCK YOU WANTS.") //Show alert
+		}//맵을 그림
 	}
 }
 
@@ -412,7 +416,7 @@ void InputKey() {
 					SetBlock(NUMBER6);
 					break;
 			}
-
+			system("cls");
 		}else{
 			switch (key) {
 				case SPACE: // space
@@ -443,8 +447,34 @@ void InputKey() {
 }
 
 void SetBlock(int number){
-	blockForm = number -1;
+	switch (number)
+	{
+	case NUMBER1:
+		blockForm = 0;
+		break;
+	case NUMBER2:
+		blockForm = 1;
+		break;
+	case NUMBER3:
+		blockForm = 2;
+		break;
+	case NUMBER4:
+		blockForm = 3;
+		break;
+	case NUMBER5:
+		blockForm = 4;
+		break;
+	case NUMBER6:
+		blockForm = 5;
+		break;
+	case NUMBER7:
+		blockForm = 6;
+		break;
+	default:
+		blockForm = 0;
+		break;
+	}
 	enableUserAdd = false;
-	startDropT = clock();
+	//startDropT = clock();
 	//사용자가 지정한 블록으로 저장
 }
