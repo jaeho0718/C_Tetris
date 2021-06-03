@@ -314,7 +314,7 @@ void BlockToGround() {
 			}
 			x = 8;
 			y = 0; //초기로 돌아감
-			if (enableUserAdd){
+			if (!enableUserAdd){
 				CreateRandomForm();	
 			}
 		}
@@ -346,7 +346,7 @@ void RemoveLine() {
 		//한번에 두줄이 삭제되는지 확인
 		enableUserAdd = true;
 		checkDeleteLine = 0;
-		startDropT = clock()
+		startDropT = clock();
 	}
 }
 
@@ -447,34 +447,8 @@ void InputKey() {
 }
 
 void SetBlock(int number){
-	switch (number)
-	{
-	case NUMBER1:
-		blockForm = 0;
-		break;
-	case NUMBER2:
-		blockForm = 1;
-		break;
-	case NUMBER3:
-		blockForm = 2;
-		break;
-	case NUMBER4:
-		blockForm = 3;
-		break;
-	case NUMBER5:
-		blockForm = 4;
-		break;
-	case NUMBER6:
-		blockForm = 5;
-		break;
-	case NUMBER7:
-		blockForm = 6;
-		break;
-	default:
-		blockForm = 0;
-		break;
-	}
+	blockForm = number - 49;
+	startDropT = clock();
 	enableUserAdd = false;
-	//startDropT = clock();
 	//사용자가 지정한 블록으로 저장
 }
