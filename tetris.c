@@ -12,8 +12,9 @@
 #define NUMBER3 51
 #define NUMBER4 52
 #define NUMBER5 53
-#define NUMBER6 55
+#define NUMBER6 54
 #define NUMBER7 55
+#define COLOR(color) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),color); //색깔 입히기 위함.
 
 clock_t startDropT, endT, startGroundT;
 int x = 8, y = 0;
@@ -241,6 +242,7 @@ void DrawBlock();
 void InputKey();
 void SetBlock(int number);
 void showBlock();
+void SetBlockColor(int Form);
 
 int main() {
 	Init();
@@ -353,7 +355,9 @@ void RemoveLine() {
 
 void DrawMap() {
 	gotoxy(0, 0);
+	COLOR(8); //Gray
 	if (enableUserAdd){
+		system("cls");
 		printf("SELECT BLOCK YOU WANTS. 1~7"); //Show alert
 		showBlock();
 	}else{
@@ -373,6 +377,7 @@ void DrawMap() {
 }
 
 void DrawBlock() {
+	SetBlockColor(blockForm);
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (block[blockForm][blockRotation][i][j] == 1) {
@@ -418,7 +423,7 @@ void InputKey() {
 					SetBlock(NUMBER6);
 					break;
 			}
-			system("cls");
+			
 		}else{
 			switch (key) {
 				case SPACE: // space
@@ -457,16 +462,16 @@ void SetBlock(int number){
 
 void showBlock(){
 	//사용자가 선택할 수 있는 블럭 보여줌
-	gotoxy(0, 8);
+	gotoxy(0, 2);
 	int block_x = 0;
 	int number_x = 0;
 
 	for (int Block = 0; Block < 7; Block++){
-		gotoxy(block_x,8);
+		gotoxy(block_x,2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (block[Block][0][i][j] == 1) {
-					gotoxy(block_x + j * 2, y + i);
+					gotoxy(block_x + j * 2, 2 + i);
 					printf("■");
 				}
 			}
@@ -475,8 +480,43 @@ void showBlock(){
 	}
 
 	for (int number = 0; number < 7; number++){
-		gotoxy(number_x+2,15);
-		printf("%d",number);
-		number_x += 4;
+		gotoxy(number_x+4,6);
+		printf("%d",number+1);
+		number_x += 8;
+	}
+}
+
+void SetBlockColor(int Form){
+	switch (Form)
+	{
+	case 0:
+		COLOR(4); //Red
+		break;
+	case 1:
+		COLOR(6); //Yellow
+		/* code */
+		break;
+	case 2:
+		COLOR(14); //Light Yellow
+		/* code */
+		break;
+	case 3:
+		COLOR(1); //Blue
+		/* code */
+		break;
+	case 4:
+		COLOR(2); //Green
+		/* code */
+		break;
+	case 5:
+		COLOR(10); //LightGreen
+		/* code */
+		break;
+	case 6:
+		COLOR(3); //AQUA
+		/* code */
+		break;
+	default:
+		break;
 	}
 }
