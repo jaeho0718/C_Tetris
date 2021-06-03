@@ -23,8 +23,9 @@ int blockForm; //block 형태 지정
 int blockRotation = 0;
 int key;
 int checkDeleteLine = 0; 
-
 bool enableUserAdd = false; //유저가 원하는 블럭 넣을 수 있나.
+static int g_nScreenIndex;
+static HANDLE g_hScreen[2];
 
 int block[7][4][4][4] = {
 	{ // T모양 블럭
@@ -242,7 +243,9 @@ void DrawBlock();
 void InputKey();
 void SetBlock(int number);
 void showBlock();
-void SetBlockColor(int Form);
+void SetBlockColor(int Form); //set Block Color
+void ScreenFlipping();
+void print(char* string);
 
 int main() {
 	Init();
@@ -267,18 +270,22 @@ void Init() {
 	CONSOLE_CURSOR_INFO cursorInfo; //콘솔창에 깜빡이는 하얀색 커서를 없애기 위함
 	cursorInfo.bVisible = 0;
 	cursorInfo.dwSize = 1;
-	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+	g_hScreen[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+    g_hScreen[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	SetConsoleCursorInfo(g_hScreen[0], &cursorInfo);
+	SetConsoleCursorInfo(g_hScreen[1], &cursorInfo);
 	srand(time(NULL)); //->깜빡이는 하얀새 커버가 계속 나오지 않도록 함.
 }
 void gotoxy(int x, int y) {
 	COORD pos;
 	pos.X = x;
 	pos.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+	SetConsoleCursorPosition(g_hScreen[g_nScreenIndex], pos);
 }
 void CreateRandomForm() {
 	blockForm = rand() % 7; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
 }
+
 bool CheckCrash(int x, int y) {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -358,18 +365,19 @@ void DrawMap() {
 	COLOR(8); //Gray
 	if (enableUserAdd){
 		system("cls");
-		printf("SELECT BLOCK YOU WANTS. 1~7"); //Show alert
+		//printf("SELECT BLOCK YOU WANTS. 1~7"); 
+		//Show alert
 		showBlock();
 	}else{
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 12; j++) {
 				if (space[i][j] == 1) {
 					gotoxy(j * 2, i);
-					printf("□");
+					print("□");
 				}
 				else if (space[i][j] == 2) {
 				gotoxy(j * 2, i);
-				printf("■");
+				print("■");
 				}
 			}
 		}//맵을 그림
@@ -382,7 +390,7 @@ void DrawBlock() {
 		for (int j = 0; j < 4; j++) {
 			if (block[blockForm][blockRotation][i][j] == 1) {
 				gotoxy(x + j * 2, y + i);
-				printf("■");
+				print("■");
 			}
 		}
 	}
@@ -472,7 +480,7 @@ void showBlock(){
 			for (int j = 0; j < 4; j++) {
 				if (block[Block][0][i][j] == 1) {
 					gotoxy(block_x + j * 2, 2 + i);
-					printf("■");
+					print("■");
 				}
 			}
 		}
@@ -481,7 +489,7 @@ void showBlock(){
 
 	for (int number = 0; number < 7; number++){
 		gotoxy(number_x+4,6);
-		printf("%d",number+1);
+		//printf("%d",number+1);
 		number_x += 8;
 	}
 }
@@ -519,4 +527,16 @@ void SetBlockColor(int Form){
 	default:
 		break;
 	}
+}
+
+void ScreenFlipping()
+{
+    SetConsoleActiveScreenBuffer(g_hScreen[g_nScreenIndex]);
+    g_nScreenIndex = !g_nScreenIndex;
+}
+
+void print(char* string)
+{	
+    DWORD dw;
+    WriteFile(g_hScreen[g_nScreenIndex], string, strlen(string), &dw, NULL);
 }
