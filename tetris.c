@@ -17,6 +17,8 @@ int blockRotation = 0;
 int nextBlockRotation = 0;
 int key;
 int nextBlockForm;
+int score = 0;
+int delLine = 0;
 
 int block[7][4][4][4] = {
 	{ // T모양 블럭
@@ -209,8 +211,8 @@ int space[15 + 1][10 + 2 + 6] = {  // 세로 15+1(아래벽)칸, 가로 10+2(양
 	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
 	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
 	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
 	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
 	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
 	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
 	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
@@ -233,11 +235,13 @@ void DrawMap();
 void DrawBlock();
 void InputKey();
 void NextBlockPrint();
+void scoreBoard();
+void getScore();
 
 int main() {
 	Init();
 	startDropT = clock();
-	blockForm = rand() % 7; //처음 블록만 직접 생성
+	blockForm = rand() % 7; //처음 블록만 생성
 	CreateRandomForm();
 
 	while (true) {
@@ -248,6 +252,9 @@ int main() {
 		BlockToGround();
 		RemoveLine();
 		InputKey();
+		scoreBoard();
+		getScore();
+
 	}
 	return 0;
 }
@@ -322,10 +329,13 @@ void RemoveLine() {
 				for (int x = 1; x < 11; x++) {
 					if (i - j - 1 >= 0)
 						space[i - j][x] = space[i - j - 1][x];
-					else      // 천장이면 0저장
+					else {     // 천장이면 0저장
 						space[i - j][x] = 0;
+					}
 				}
 			}
+
+			delLine += 100;
 		}
 	}
 	//1줄이되면 블럭을 제거함
@@ -359,11 +369,24 @@ void NextBlockPrint() {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (block[nextBlockForm][nextBlockRotation][i][j] == 1) {
-				gotoxy(26 + j * 2, 1 + i);
+				gotoxy(26 + j * 2, 2 + i);
 				printf("■");
 			}
 		}
 	}
+	gotoxy(28, 1);
+	printf("NEXT");
+}
+void scoreBoard() {
+	gotoxy(27, 8);
+	printf("SCORE");
+	gotoxy(29, 10);
+	printf("%d", score);
+}
+
+void getScore() {
+	score += delLine;
+	delLine = 0;
 }
 /*
 [7] : 7개의 블럭
