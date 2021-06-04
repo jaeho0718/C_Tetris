@@ -247,6 +247,7 @@ void ScreenFlipping();
 void print(const char* string);
 void ScreenClear();
 void Color(int color);
+
 int main() {
 	Init();
 	startDropT = clock();
@@ -353,12 +354,12 @@ void RemoveLine() {
 			}
 		}
 	}
-	if (checkDeleteLine >= 2) {
-		//한번에 두줄이 삭제되는지 확인
-		enableUserAdd = true;
-		checkDeleteLine = 0;
+	if (checkDeleteLine > 1) {
+		//한번에 3줄이 삭제되는지 확인
 		startDropT = clock();
+		enableUserAdd = true;
 	}
+	checkDeleteLine = 0;
 }
 
 void DrawMap() {
