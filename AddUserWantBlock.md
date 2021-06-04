@@ -2,7 +2,7 @@
 
 ## Update 
 
-+ ### Fix screen flickering (by using Double Buffering)
++ ### Fix screen flickering (by using Double Buffering) -Important!!
     - To show content, You should replace 'printf' to 'print'. (If you use printf function,Nothing appears.)
 
     ``` c
