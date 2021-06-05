@@ -1,22 +1,22 @@
 #include "tetris.hpp"
 
-int space[15 + 1][10 + 2] = {  // 세로 15+1(아래벽)칸, 가로 10+2(양쪽 벽)칸  
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,1},
-	{1,1,1,1,1,1,1,1,1,1,1,1}
+int space[15 + 1][10 + 2 + 6] = {  // 세로 15+1(아래벽)칸, 가로 10+2(양쪽 벽)+(다음 블록)칸  
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1},
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
 clock_t startDropT, endT, startGroundT;
@@ -29,6 +29,11 @@ int checkDeleteLine = 0;
 bool enableUserAdd = false; //유저가 원하는 블럭 넣을 수 있나.
 static int g_nScreenIndex;
 static HANDLE g_hScreen[2];
+
+int nextBlockRotation = 0;
+int nextBlockForm;
+int score = 0;
+int delLine = 0;
 
 void gotoxy(int x, int y) {
 	COORD pos;
@@ -61,10 +66,12 @@ void Color(int color) {
 }
 
 void CreateRandomForm(bool noRandomBlock = false) {
-	if (noRandomBlock)
+	if (noRandomBlock) {
 		blockForm = rand() % BLOCK_LENGTH - 1;
-	else
-		blockForm = rand() % BLOCK_LENGTH; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
+	} else {
+//		blockForm = rand() % BLOCK_LENGTH; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
+		nextBlockForm = rand() % BLOCK_LENGTH;
+	}
 }
 
 bool CheckCrash(int x, int y) {
@@ -79,6 +86,32 @@ bool CheckCrash(int x, int y) {
 		}
 	}
 	return false;
+}
+
+void NextBlockPrint() {
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (block[nextBlockForm][nextBlockRotation][i][j] == 1) {
+				gotoxy(26 + j * 2, 2 + i);
+				print("■");
+			}
+		}
+	}
+	gotoxy(28, 1);
+	print("NEXT");
+}
+void scoreBoard() {
+	gotoxy(27, 8);
+	print("SCORE");
+	gotoxy(29, 10);
+	char score_str[50];
+	sprintf(score_str, "%d", score);
+	print(score_str);
+}
+
+void getScore() {
+	score += delLine;
+	delLine = 0;
 }
 
 void DropBlock() {
@@ -106,7 +139,7 @@ void showBlock() {
 	int block_x = 0;
 	int number_x = 0;
 
-	for (int Block = 0; Block < 7; Block++) {
+	for (int Block = 0; Block < BLOCK_LENGTH; Block++) {
 		gotoxy(block_x, 2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -119,7 +152,7 @@ void showBlock() {
 		block_x += 8;
 	}
 
-	for (int number = 0; number < 7; number++) {
+	for (int number = 0; number < BLOCK_LENGTH; number++) {
 		gotoxy(number_x + 4, 6);
 		char num[2] = { "1" };
 		sprintf_s(num, "%d", number + 1);
@@ -139,7 +172,7 @@ void DrawMap() {
 	}
 	else {
 		for (int i = 0; i < 16; i++) {
-			for (int j = 0; j < 12; j++) {
+			for (int j = 0; j < 18; j++) {
 				if (space[i][j] == 1) {
 					gotoxy(j * 2, i);
 					print("□");
@@ -205,6 +238,7 @@ void BlockToGround() {
 			}
 			x = 8;
 			y = 0; //초기로 돌아감
+			blockForm = nextBlockForm;
 			if (!enableUserAdd) {
 				CreateRandomForm();
 			}
@@ -232,6 +266,7 @@ void RemoveLine() {
 						space[i - j][x] = 0;
 				}
 			}
+			delLine += 100;
 		}
 	}
 	if (checkDeleteLine > 1) {
@@ -396,6 +431,7 @@ void InputKey() {
 
 int launch_game() {
 	startDropT = clock();
+	CreateRandomForm(true); //처음 블록만 생성
 	CreateRandomForm();
 
 	while (true) {
@@ -404,11 +440,14 @@ int launch_game() {
 		if (!enableUserAdd) {
 			//If 2Lines Delete, Until User select block , game is stop.
 			DrawBlock();
+			NextBlockPrint();
 			DropBlock();
 			BlockToGround();
 			RemoveLine();
 		}
 		InputKey();
+		scoreBoard();
+		getScore();
 		ScreenFlipping();
 	}
 	return 0;
