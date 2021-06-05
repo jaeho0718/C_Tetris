@@ -1,0 +1,4 @@
+﻿  tetris.cpp
+c:\users\planch2\documents\cau\basic_programming\c_tetris_vs\c_tetris_vs\sources\tetris.cpp(49): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data
+c:\users\planch2\documents\cau\basic_programming\c_tetris_vs\c_tetris_vs\sources\tetris.cpp(335): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  C_Tetris_VS.vcxproj -> C:\Users\planch2\Documents\cau\basic_programming\C_Tetris_VS\x64\Debug\C_Tetris_VS.exe
