@@ -34,6 +34,7 @@ int nextBlockRotation = 0;
 int nextBlockForm;
 int score = 0;
 int delLine = 0;
+bool justCreated = false;
 
 void gotoxy(int x, int y) {
 	COORD pos;
@@ -67,7 +68,7 @@ void Color(int color) {
 
 void CreateRandomForm(bool noRandomBlock = false) {
 	if (noRandomBlock) {
-		blockForm = rand() % BLOCK_LENGTH - 1;
+		blockForm = rand() % (BLOCK_LENGTH - 1);
 	} else {
 //		blockForm = rand() % BLOCK_LENGTH; //블럭이 내려올 때마다 랜덤으로 바뀌게함.
 		nextBlockForm = rand() % BLOCK_LENGTH;
@@ -429,6 +430,15 @@ void InputKey() {
 	}
 }
 
+bool verify_end() {
+	for (int x = 1; x <= 10; x++) {
+		if (space[0][x] == 1 || space[0][x] == 2) {
+			return true;
+		}
+	}
+	return false;
+}
+
 int launch_game() {
 	startDropT = clock();
 	CreateRandomForm(true); //처음 블록만 생성
@@ -438,7 +448,8 @@ int launch_game() {
 		ScreenClear();
 		DrawMap();
 		if (!enableUserAdd) {
-			//If 2Lines Delete, Until User select block , game is stop.
+			if (verify_end())
+				break;
 			DrawBlock();
 			NextBlockPrint();
 			DropBlock();
